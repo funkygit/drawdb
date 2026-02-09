@@ -10,6 +10,7 @@ export default function LayoutContextProvider({ children }) {
     toolbar: true,
     dbmlEditor: false,
     readOnly: false,
+    panMode: false,
   });
 
   return (

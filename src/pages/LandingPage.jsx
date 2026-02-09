@@ -9,14 +9,12 @@ import sqlite_icon from "../assets/sqlite.png";
 import mariadb_icon from "../assets/mariadb.png";
 import oraclesql_icon from "../assets/oraclesql.png";
 import sql_server_icon from "../assets/sql-server.png";
-import discord from "../assets/discord.png";
-import github from "../assets/github.png";
+
 import warp from "../assets/warp.png";
 import screenshot from "../assets/screenshot.png";
 import FadeIn from "../animations/FadeIn";
 import axios from "axios";
 import { languages } from "../i18n/i18n";
-import { Tweet } from "react-tweet";
 import { socials } from "../data/socials";
 
 function shortenNumber(number) {
@@ -213,86 +211,6 @@ export default function LandingPage() {
             ))}
           </div>
         </FadeIn>
-      </div>
-
-      {/* Tweets */}
-      <div className="px-40 mt-6 md:px-8">
-        <div className="text-center text-2xl md:text-xl font-medium">
-          What the internet says about us
-        </div>
-        <div
-          data-theme="light"
-          className="grid grid-cols-2 place-items-center md:grid-cols-1"
-        >
-          <Tweet id="1816111365125218343" />
-          <Tweet id="1817933406337905021" />
-          <Tweet id="1785457354777006524" />
-          <Tweet id="1776842268042756248" />
-        </div>
-      </div>
-
-      {/* Contact us */}
-      <svg
-        viewBox="0 0 1440 54"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        width="100%"
-        className="bg-transparent -scale-100"
-      >
-        <path
-          d="M0 48 C0 48 320 0 720 0C1080 0 1440 48 1440 48V0H0V100Z"
-          fill="#f4f4f5"
-        />
-      </svg>
-      <div className="bg-zinc-100 py-8 px-32 md:px-8">
-        <div className="mt-4 mb-2 text-2xl font-bold text-center">
-          Reach out to us
-        </div>
-        <div className="text-lg text-center mb-4">
-          We love hearing from you. Join our community on Discord, GitHub, and
-          X.
-        </div>
-        <div className="px-36 text-center md:px-8">
-          <div className="md:block md:space-y-3 flex gap-3 justify-center">
-            <a
-              className="inline-block"
-              href={socials.github}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <div className="bg-zinc-800 hover:opacity-90 transition-all duration-300 flex items-center gap-4 px-14 py-4 rounded-lg">
-                <img src={github} className="h-8" />
-                <div className="text-lg text-white font-bold">
-                  See the source
-                </div>
-              </div>
-            </a>
-            <a
-              className="inline-block"
-              href={socials.discord}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <div className="bg-[#5865f2] hover:opacity-90 transition-all duration-300 flex items-center gap-4 px-8 py-4 rounded-lg">
-                <img src={discord} className="h-8" />
-                <div className="text-lg text-white font-bold">
-                  Join us on Discord
-                </div>
-              </div>
-            </a>
-            <a
-              className="inline-block"
-              href={socials.twitter}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <div className="text-white bg-zinc-800 hover:opacity-90 transition-all duration-300 flex items-center gap-4 px-12 py-4 rounded-lg">
-                <i className="text-2xl bi bi-twitter-x" />
-                <div className="text-lg  font-bold">Follow us on X</div>
-              </div>
-            </a>
-          </div>
-        </div>
       </div>
 
       <div className="bg-red-700 py-1 text-center text-white text-xs font-semibold px-3">

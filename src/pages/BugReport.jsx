@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import logo_light from "../assets/logo_light_160.png";
 import logo_dark from "../assets/logo_dark_160.png";
 import { Banner, Button, Input, Upload, Toast, Spin } from "@douyinfe/semi-ui";
-import { IconGithubLogo, IconPaperclip } from "@douyinfe/semi-icons";
+import { IconPaperclip } from "@douyinfe/semi-icons";
 import RichEditor from "../components/LexicalEditor/RichEditor";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { editorConfig } from "../data/editorConfig";
@@ -10,7 +10,6 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { CLEAR_EDITOR_COMMAND } from "lexical";
 import { Link } from "react-router-dom";
-import { socials } from "../data/socials";
 import { send } from "../api/email";
 import { useSettings, useThemedPage } from "../hooks";
 
@@ -152,9 +151,8 @@ export default function BugReport() {
         </div>
       </div>
       <hr
-        className={`${
-          theme === "dark" ? "border-zinc-700" : "border-zinc-300"
-        } my-1`}
+        className={`${theme === "dark" ? "border-zinc-700" : "border-zinc-300"
+          } my-1`}
       />
       <div className="grid grid-cols-12 gap-8 my-6 mx-20 sm:mx-6">
         <div className="col-span-4 md:col-span-12 lg:col-span-4">
@@ -194,29 +192,6 @@ export default function BugReport() {
             <div className="text-sm mt-1">
               Add any relevant images if possible.
             </div>
-            <div className="flex items-center justify-center my-2">
-              <hr
-                className={`${
-                  theme === "dark" ? "border-zinc-700" : "border-zinc-300"
-                } grow`}
-              />
-              <div className="text-sm font-semibold m-2">Alternatively</div>
-              <hr
-                className={`${
-                  theme === "dark" ? "border-zinc-700" : "border-zinc-300"
-                } grow`}
-              />
-            </div>
-            <Button
-              block
-              icon={<IconGithubLogo />}
-              style={{ backgroundColor: "#239144", color: "white" }}
-              onClick={() => {
-                window.open(`${socials.github}/issues`, "_self");
-              }}
-            >
-              Add an issue
-            </Button>
           </div>
         </div>
         <div className="col-span-8 md:col-span-12 lg:col-span-8">
@@ -240,9 +215,8 @@ export default function BugReport() {
         </div>
       </div>
       <hr
-        className={`${
-          theme === "dark" ? "border-zinc-700" : "border-zinc-300"
-        } my-1`}
+        className={`${theme === "dark" ? "border-zinc-700" : "border-zinc-300"
+          } my-1`}
       />
       <div className="text-center text-sm py-3">
         &copy; {new Date().getFullYear()} <strong>drawDB</strong> - All rights reserved.

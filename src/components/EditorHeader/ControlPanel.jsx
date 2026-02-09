@@ -238,9 +238,9 @@ export default function ControlPanel({
             indices: table.indices.map((index) =>
               index.id === a.iid
                 ? {
-                    ...index,
-                    ...a.undo,
-                  }
+                  ...index,
+                  ...a.undo,
+                }
                 : index,
             ),
           });
@@ -419,9 +419,9 @@ export default function ControlPanel({
             indices: table.indices.map((index) =>
               index.id === a.iid
                 ? {
-                    ...index,
-                    ...a.redo,
-                  }
+                  ...index,
+                  ...a.redo,
+                }
                 : index,
             ),
           });
@@ -783,19 +783,19 @@ export default function ControlPanel({
                 t.id
                   ? t
                   : {
-                      ...t,
-                      id: nanoid(),
-                      fields: t.fields.map((f) =>
-                        f.id ? f : { ...f, id: nanoid() },
-                      ),
-                    },
+                    ...t,
+                    id: nanoid(),
+                    fields: t.fields.map((f) =>
+                      f.id ? f : { ...f, id: nanoid() },
+                    ),
+                  },
               ),
             );
           }
           if (databases[diagram.database].hasEnums) {
             setEnums(
               diagram.enums.map((e) => (!e.id ? { ...e, id: nanoid() } : e)) ??
-                [],
+              [],
             );
           }
           window.name = `d ${diagram.id}`;
@@ -828,31 +828,31 @@ export default function ControlPanel({
         children: [
           ...(recentlyOpenedDiagrams && recentlyOpenedDiagrams.length > 0
             ? [
-                ...recentlyOpenedDiagrams.map((diagram) => ({
-                  name: diagram.name,
-                  label: DateTime.fromJSDate(new Date(diagram.lastModified))
-                    .setLocale(i18n.language)
-                    .toRelative(),
-                  function: async () => {
-                    await loadDiagram(diagram.id);
-                    save();
-                  },
-                })),
-                { divider: true },
-                {
-                  name: t("see_all"),
-                  function: () => open(),
+              ...recentlyOpenedDiagrams.map((diagram) => ({
+                name: diagram.name,
+                label: DateTime.fromJSDate(new Date(diagram.lastModified))
+                  .setLocale(i18n.language)
+                  .toRelative(),
+                function: async () => {
+                  await loadDiagram(diagram.id);
+                  save();
                 },
-              ]
+              })),
+              { divider: true },
+              {
+                name: t("see_all"),
+                function: () => open(),
+              },
+            ]
             : [
-                {
-                  name: t("no_saved_diagrams"),
-                  disabled: true,
-                },
-              ]),
+              {
+                name: t("no_saved_diagrams"),
+                disabled: true,
+              },
+            ]),
         ],
 
-        function: () => {},
+        function: () => { },
       },
       save: {
         function: save,
@@ -1268,7 +1268,7 @@ export default function ControlPanel({
             },
           },
         ],
-        function: () => {},
+        function: () => { },
       },
       exit: {
         function: () => {
@@ -1512,7 +1512,7 @@ export default function ControlPanel({
             function: () => setSettings((prev) => ({ ...prev, mode: "dark" })),
           },
         ],
-        function: () => {},
+        function: () => { },
       },
       zoom_in: {
         function: zoomIn,
@@ -1585,9 +1585,6 @@ export default function ControlPanel({
       },
       shortcuts: {
         function: () => window.open(`${socials.docs}/shortcuts`, "_blank"),
-      },
-      ask_on_discord: {
-        function: () => window.open(socials.discord, "_blank"),
       },
       report_bug: {
         function: () => window.open("/bug-report", "_blank"),
@@ -1836,6 +1833,15 @@ export default function ControlPanel({
               <i className="fa-solid fa-circle-half-stroke" />
             </button>
           </Tooltip>
+          <Divider layout="vertical" margin="8px" />
+          <Tooltip content={layout.panMode ? t("pan_mode") + " (ON)" : t("pan_mode") + " (OFF)"} position="bottom">
+            <button
+              className={`py-1 px-2 hover-2 rounded-sm text-xl -mt-0.5 ${layout.panMode ? "bg-sky-200 dark:bg-sky-800" : ""}`}
+              onClick={() => setLayout((prev) => ({ ...prev, panMode: !prev.panMode }))}
+            >
+              <i className="fa-solid fa-hand" />
+            </button>
+          </Tooltip>
         </div>
         <button
           onClick={() => invertLayout("header")}
@@ -2057,7 +2063,7 @@ export default function ControlPanel({
                   type="light"
                   prefixIcon={
                     saveState === State.LOADING ||
-                    saveState === State.SAVING ? (
+                      saveState === State.SAVING ? (
                       <Spin size="small" />
                     ) : null
                   }

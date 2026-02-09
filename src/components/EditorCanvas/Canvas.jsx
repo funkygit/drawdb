@@ -428,6 +428,16 @@ export default function Canvas() {
     const isMouseMiddleButton = e.button === 1;
 
     if (isMouseLeftButton) {
+      // Pan mode: left-click pans instead of selecting
+      if (layout.panMode) {
+        setPanning({
+          isPanning: true,
+          panStart: transform.pan,
+          cursorStart: pointer.spaces.screen,
+        });
+        pointer.setStyle("grabbing");
+        return;
+      }
       setBulkSelectRect({
         x1: pointer.spaces.diagram.x,
         y1: pointer.spaces.diagram.y,
@@ -650,13 +660,13 @@ export default function Canvas() {
             x:
               prev.pan.x -
               (pointer.spaces.diagram.x - prev.pan.x) *
-                eagernessFactor *
-                Math.sign(e.deltaY),
+              eagernessFactor *
+              Math.sign(e.deltaY),
             y:
               prev.pan.y -
               (pointer.spaces.diagram.y - prev.pan.y) *
-                eagernessFactor *
-                Math.sign(e.deltaY),
+              eagernessFactor *
+              Math.sign(e.deltaY),
           },
           zoom: e.deltaY <= 0 ? prev.zoom * 1.05 : prev.zoom / 1.05,
         }));
