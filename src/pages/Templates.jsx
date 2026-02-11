@@ -32,7 +32,7 @@ export default function Templates() {
   };
 
   useEffect(() => {
-    document.title = "Templates | drawDB";
+    document.title = "Templates | AnyDB Studio";
   }, []);
 
   return (

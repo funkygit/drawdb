@@ -171,27 +171,6 @@ export default function BugReport() {
             <div className="text-sm mt-1">
               Please provide the steps of how to reproduce the bug.
             </div>
-            <div className="flex items-center mt-3">
-              <IconPaperclip />
-              <div className="font-bold ms-1">Expected behaviour</div>
-            </div>
-            <div className="text-sm mt-1">
-              Tell us what you expected to see vs what you saw.
-            </div>
-            <div className="flex items-center mt-3">
-              <IconPaperclip />
-              <div className="font-bold ms-1">Your browser and device</div>
-            </div>
-            <div className="text-sm mt-1">
-              What web browser and device did you encounter the bug on.
-            </div>
-            <div className="flex items-center mt-3">
-              <IconPaperclip />
-              <div className="font-bold ms-1">Screenshots</div>
-            </div>
-            <div className="text-sm mt-1">
-              Add any relevant images if possible.
-            </div>
           </div>
         </div>
         <div className="col-span-8 md:col-span-12 lg:col-span-8">
@@ -218,8 +197,9 @@ export default function BugReport() {
         className={`${theme === "dark" ? "border-zinc-700" : "border-zinc-300"
           } my-1`}
       />
-      <div className="text-center text-sm py-3">
-        &copy; {new Date().getFullYear()} <strong>drawDB</strong> - All rights reserved.
+      <div className="flex justify-center items-center w-full text-xs text-slate-400 py-4 mt-auto">
+        &copy; {new Date().getFullYear()} <strong>AnyDB Studio</strong> - All
+        rights reserved.
       </div>
     </>
   );

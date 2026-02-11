@@ -1,7 +1,8 @@
 services:
-  drawdb:
+  anydb-studio:
+    build: .
     image: node:20-alpine
-    container_name: drawdb
+    container_name: anydb-studio
     ports:
       - 5173:5173
     working_dir: /var/www/html

@@ -1,4 +1,4 @@
-# Contributing to drawDB
+# Contributing to AnyDB Studio
 
 Thanks for taking the time to contribute!
 
