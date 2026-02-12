@@ -7,13 +7,9 @@ export default function NotFound() {
 
       <p>looking for something you couldn&apos;t find?</p>
       <p>
-        check out the{" "}
-        <a className="text-blue-600" href={socials.docs}>
-          docs
-        </a>
-        , or{" "}
-        <a className="text-blue-600" href="mailto:drawdb@outlook.com">
-          shoot us an email
+        looking for something you couldn&apos;t find?{" "}
+        <a className="text-blue-600" href="mailto:funkyabhishek1@gmail.com">
+          Shoot us an email
         </a>
       </p>
       <br />
@@ -21,12 +17,6 @@ export default function NotFound() {
         * to create a relationship hold the blue dot of a field and drag it
         towards the field you want to connect it to
       </p>
-      <a
-        className="text-blue-600"
-        href={`${socials.docs}/create-diagram#relationships`}
-      >
-        see here
-      </a>
     </div>
   );
 }

@@ -38,12 +38,12 @@ export default function Navbar() {
             >
               Templates
             </Link>
-            <Link
+            {/* <Link
               to={socials.docs}
               className="text-lg font-semibold hover:text-sky-800 transition-colors duration-300"
             >
               Docs
-            </Link>
+            </Link> */}
           </div>
 
         </div>
@@ -89,12 +89,12 @@ export default function Navbar() {
           Templates
         </Link>
         <hr />
-        <Link
+        {/* <Link
           to={socials.docs}
           className="hover:bg-zinc-100 block p-3 text-base font-semibold"
         >
           Docs
-        </Link>
+        </Link> */}
       </SideSheet>
     </>
   );

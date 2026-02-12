@@ -25,20 +25,10 @@ function shortenNumber(number) {
 }
 
 export default function LandingPage() {
-  const [stats, setStats] = useState({ stars: 18000, forks: 1200 });
-
   useEffect(() => {
-    const fetchStats = async () => {
-      await axios
-        .get("https://api.github-star-counter.workers.dev/user/drawdb-io")
-        .then((res) => setStats(res.data));
-    };
-
     document.body.setAttribute("theme-mode", "light");
     document.title =
       "AnyDB Studio | Online database diagram editor and SQL generator";
-
-    fetchStats();
   }, []);
 
   return (
@@ -103,7 +93,7 @@ export default function LandingPage() {
       <div id="learn-more">
         <div className="bg-zinc-100 py-10 px-28 md:px-8">
           {/* Supported by */}
-          <div className="text-center mb-16">
+          {/* <div className="text-center mb-16">
             <div className="text-2xl md:text-xl font-bold text-sky-800 mb-8">
               Supported by
             </div>
@@ -124,7 +114,7 @@ export default function LandingPage() {
                 </div>
               </a>
             </div>
-          </div>
+          </div> */}
           <div className="mt-16 w-[75%] text-center sm:w-full mx-auto shadow-xs rounded-2xl border p-6 bg-white space-y-3 mb-12">
             <div className="text-lg font-medium">
               Build diagrams with a few clicks, see the full picture, export SQL
@@ -132,32 +122,7 @@ export default function LandingPage() {
             </div>
             <img src={screenshot} className="mx-auto" />
           </div>
-          <div className="flex justify-center items-center gap-28 md:block">
-            <div className="text-center mb-4">
-              <div className="text-5xl md:text-3xl font-bold text-sky-800">
-                {shortenNumber(stats.stars)}
-              </div>
-              <div className="ms-1 mt-1 font-medium tracking-wide">
-                GitHub stars
-              </div>
-            </div>
-            <div className="text-center mb-4">
-              <div className="text-5xl md:text-3xl font-bold text-sky-800">
-                {shortenNumber(stats.forks)}
-              </div>
-              <div className="ms-1 mt-1 font-medium tracking-wide">
-                GitHub forks
-              </div>
-            </div>
-            <div className="text-center mb-4">
-              <div className="text-5xl md:text-3xl font-bold text-sky-800">
-                {shortenNumber(languages.length)}
-              </div>
-              <div className="ms-1 mt-1 font-medium tracking-wide">
-                Languages
-              </div>
-            </div>
-          </div>
+
           <div className="text-lg font-medium text-center mt-12 mb-6">
             Design for your database
           </div>
@@ -193,7 +158,7 @@ export default function LandingPage() {
             More than just an editor
           </div>
           <div className="text-2xl mt-1 font-medium text-center">
-            What drawDB has to offer
+            What AnyDB Studio has to offer
           </div>
           <div className="grid grid-cols-3 gap-8 mt-10 md:grid-cols-2 sm:grid-cols-1">
             {features.map((f, i) => (
