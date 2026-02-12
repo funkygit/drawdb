@@ -1632,7 +1632,7 @@ export default function ControlPanel({
             style={isRtl(i18n.language) ? { direction: "rtl" } : {}}
           >
             {header()}
-            {window.name.split(" ")[0] !== "t" && (
+            {/* {window.name.split(" ")[0] !== "t" && (
               <Button
                 type="primary"
                 className="!text-base me-2 !pe-6 !ps-5 !py-[18px] !rounded-md"
@@ -1642,7 +1642,7 @@ export default function ControlPanel({
               >
                 {t("share")}
               </Button>
-            )}
+            )} */}
           </div>
         )}
         {layout.toolbar && toolbar()}
