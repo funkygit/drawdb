@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(helmet());
@@ -13,6 +13,11 @@ app.use(cors({
     origin: process.env.ALLOWED_ORIGIN || '*'
 }));
 app.use(bodyParser.json({ limit: '10mb' }));
+
+// Swagger UI
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
 const gistsRoutes = require('./routes/gists');

@@ -13,7 +13,7 @@ export default function Navbar() {
       <div className="py-4 px-12 sm:px-4 flex justify-between items-center">
         <div className="flex items-center justify-between w-full">
           <Link to="/">
-            <img src={logo} alt="logo" className="h-[48px] sm:h-[32px]" />
+            <img src={logo} alt="logo" className="h-[64px]" />
           </Link>
           <div className="md:hidden flex gap-12">
             <Link
