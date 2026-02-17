@@ -710,7 +710,7 @@ export default function ControlPanel({
         return;
       }
       const v = new Validator();
-      if (v.validate(obj, tableSchema).valid) {
+      if (v.validate(obj, tableSchema, { base: "/" }).valid) {
         addTable({
           table: {
             ...obj,
@@ -719,14 +719,14 @@ export default function ControlPanel({
             id: nanoid(),
           },
         });
-      } else if (v.validate(obj, areaSchema).valid) {
+      } else if (v.validate(obj, areaSchema, { base: "/" }).valid) {
         addArea({
           ...obj,
           x: obj.x + 20,
           y: obj.y + 20,
           id: areas.length,
         });
-      } else if (v.validate(obj, noteSchema)) {
+      } else if (v.validate(obj, noteSchema, { base: "/" }).valid) {
         addNote({
           ...obj,
           x: obj.x + 20,
