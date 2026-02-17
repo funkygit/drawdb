@@ -105,6 +105,33 @@ router.patch('/:id', (req, res) => {
 /**
  * @openapi
  * /gists/{id}:
+ *   delete:
+ *     summary: Delete diagram and all versions
+ *     tags: [Gists]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Deleted successfully
+ */
+router.delete('/:id', (req, res) => {
+    try {
+        const { id } = req.params;
+        diagrams.deleteDiagram(id);
+        res.status(204).end();
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+/**
+ * @openapi
+ * /gists/{id}:
  *   get:
  *     summary: Get diagram details (latest version)
  *     tags: [Gists]
@@ -248,6 +275,50 @@ router.get('/:id/file-versions/:filename', (req, res) => {
         const result = diagrams.getFileVersions(id, filename, parseInt(limit) || 10, cursor);
 
         res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+/**
+ * @openapi
+ * /gists/{id}/file/{filename}/compare/{versionA}/{versionB}:
+ *   get:
+ *     summary: Compare two versions of a file
+ *     tags: [Gists]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: filename
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: versionA
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: versionB
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Content of both versions
+ */
+router.get('/:id/file/:filename/compare/:versionA/:versionB', (req, res) => {
+    try {
+        const { id, filename, versionA, versionB } = req.params;
+
+        const result = diagrams.compare(id, filename, versionA, versionB);
+
+        res.json({ data: result });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });

@@ -1632,7 +1632,7 @@ export default function ControlPanel({
             style={isRtl(i18n.language) ? { direction: "rtl" } : {}}
           >
             {header()}
-            {/* {window.name.split(" ")[0] !== "t" && (
+            {window.name.split(" ")[0] !== "t" && (
               <Button
                 type="primary"
                 className="!text-base me-2 !pe-6 !ps-5 !py-[18px] !rounded-md"
@@ -1642,7 +1642,7 @@ export default function ControlPanel({
               >
                 {t("share")}
               </Button>
-            )} */}
+            )}
           </div>
         )}
         {layout.toolbar && toolbar()}
@@ -1807,14 +1807,14 @@ export default function ControlPanel({
             </button>
           </Tooltip>
           <Divider layout="vertical" margin="8px" />
-          {/* <Tooltip content={t("versions")} position="bottom">
+          <Tooltip content={t("versions")} position="bottom">
             <button
               className="py-1 px-2 hover-2 rounded-sm text-xl -mt-0.5"
               onClick={() => setSidesheet(SIDESHEET.VERSIONS)}
             >
               <i className="fa-solid fa-code-branch" />
             </button>
-          </Tooltip> */}
+          </Tooltip>
           <Divider layout="vertical" margin="8px" />
           <Tooltip content={t("theme")} position="bottom">
             <button

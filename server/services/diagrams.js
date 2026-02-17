@@ -101,8 +101,12 @@ module.exports = {
     updateDiagram: (id, { filename, content }) => {
         const versionId = uuidv4();
 
+        // Use null if content is undefined (for deletion)
+        const dbContent = (content === undefined || content === null) ? null : content;
+
         getDb().run('INSERT INTO versions (id, diagram_id, filename, content) VALUES (?, ?, ?, ?)',
-            [versionId, id, filename, content]);
+            [versionId, id, filename, dbContent]);
+
         getDb().run('UPDATE diagrams SET updated_at = CURRENT_TIMESTAMP WHERE id = ?',
             [id]);
 
@@ -114,9 +118,36 @@ module.exports = {
         const diagram = queryOne('SELECT * FROM diagrams WHERE id = ?', [id]);
         if (!diagram) return null;
 
-        const latestVersion = queryOne(
-            'SELECT * FROM versions WHERE diagram_id = ? ORDER BY created_at DESC LIMIT 1', [id]);
-        if (!latestVersion) return null;
+        // Get the latest entry for EACH unique filename in this diagram
+        const allFiles = queryAll(`
+            SELECT v1.* 
+            FROM versions v1
+            INNER JOIN (
+                SELECT filename, MAX(created_at) as max_created_at
+                FROM versions
+                WHERE diagram_id = ?
+                GROUP BY filename
+            ) v2 ON v1.filename = v2.filename AND v1.created_at = v2.max_created_at
+            WHERE v1.diagram_id = ?
+        `, [id, id]);
+
+        if (allFiles.length === 0) return null;
+
+        const filesObject = {};
+        allFiles.forEach(file => {
+            // Filter out files that were deleted (last entry has null content)
+            if (file.content !== null) {
+                filesObject[file.filename] = {
+                    filename: file.filename,
+                    type: "application/json",
+                    language: "JSON",
+                    raw_url: "",
+                    size: file.content.length,
+                    truncated: false,
+                    content: file.content
+                };
+            }
+        });
 
         return {
             url: "",
@@ -127,17 +158,7 @@ module.exports = {
             git_pull_url: "",
             git_push_url: "",
             html_url: "",
-            files: {
-                [latestVersion.filename]: {
-                    filename: latestVersion.filename,
-                    type: "application/json",
-                    language: "JSON",
-                    raw_url: "",
-                    size: latestVersion.content.length,
-                    truncated: false,
-                    content: latestVersion.content
-                }
-            },
+            files: filesObject,
             public: !!diagram.public_access,
             created_at: diagram.created_at,
             updated_at: diagram.updated_at,
@@ -241,5 +262,28 @@ module.exports = {
             },
             truncated: false
         };
+    },
+
+    compare: (id, filename, versionA, versionB) => {
+        const vA = queryOne(
+            'SELECT content FROM versions WHERE id = ? AND diagram_id = ? AND filename = ?',
+            [versionA, id, filename]);
+
+        // versionB can be "null" string if it's the first version
+        const vB = (versionB && versionB !== 'null') ? queryOne(
+            'SELECT content FROM versions WHERE id = ? AND diagram_id = ? AND filename = ?',
+            [versionB, id, filename]) : null;
+
+        return {
+            contentA: vA ? vA.content : null,
+            contentB: vB ? vB.content : null
+        };
+    },
+
+    deleteDiagram: (id) => {
+        getDb().run('DELETE FROM versions WHERE diagram_id = ?', [id]);
+        getDb().run('DELETE FROM diagrams WHERE id = ?', [id]);
+        saveDatabase();
+        return true;
     }
 };
