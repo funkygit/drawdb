@@ -1,63 +1,125 @@
-const Database = require('better-sqlite3');
+const initSqlJs = require('sql.js');
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
-const dbPath = path.join(__dirname, '../data');
-if (!fs.existsSync(dbPath)) {
-    fs.mkdirSync(dbPath, { recursive: true });
+const dbDir = path.join(__dirname, '../data');
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
 }
 
-const db = new Database(path.join(dbPath, 'drawdb.sqlite'));
-
-// Initialize DB
+const dbFilePath = path.join(dbDir, 'anydb.sqlite');
 const schemaPath = path.join(__dirname, '../db/schema.sql');
 const schema = fs.readFileSync(schemaPath, 'utf8');
-db.exec(schema);
+
+let db = null;
+
+/**
+ * Save the in-memory database to disk.
+ * sql.js operates entirely in-memory, so we must explicitly
+ * write it out after any mutation.
+ */
+function saveDatabase() {
+    if (db) {
+        const data = db.export();
+        const buffer = Buffer.from(data);
+        fs.writeFileSync(dbFilePath, buffer);
+    }
+}
+
+/**
+ * Initialize sql.js and load (or create) the database.
+ * Must be called (and awaited) before any queries.
+ */
+async function initDatabase() {
+    const SQL = await initSqlJs();
+
+    if (fs.existsSync(dbFilePath)) {
+        const fileBuffer = fs.readFileSync(dbFilePath);
+        db = new SQL.Database(fileBuffer);
+    } else {
+        db = new SQL.Database();
+    }
+
+    // Ensure schema exists
+    db.run(schema);
+    saveDatabase();
+    return db;
+}
+
+/**
+ * Get the database instance (must be initialized first).
+ */
+function getDb() {
+    if (!db) {
+        throw new Error('Database not initialized. Call initDatabase() first.');
+    }
+    return db;
+}
+
+/**
+ * Helper to run a SELECT that returns multiple rows.
+ * sql.js returns an array of { columns, values } objects.
+ */
+function queryAll(sql, params = []) {
+    const result = getDb().exec(sql, params);
+    if (result.length === 0) return [];
+    const { columns, values } = result[0];
+    return values.map(row => {
+        const obj = {};
+        columns.forEach((col, i) => {
+            obj[col] = row[i];
+        });
+        return obj;
+    });
+}
+
+/**
+ * Helper to run a SELECT that returns a single row.
+ */
+function queryOne(sql, params = []) {
+    const rows = queryAll(sql, params);
+    return rows.length > 0 ? rows[0] : null;
+}
 
 module.exports = {
-    createDiagram: ({ public = false, description, filename, content }) => {
+    initDatabase,
+
+    createDiagram: ({ public: isPublic = false, description, filename, content }) => {
         const id = uuidv4();
-        const versionId = uuidv4(); // Initial version
+        const versionId = uuidv4();
 
-        const insertDiagram = db.prepare('INSERT INTO diagrams (id, public_access, description) VALUES (?, ?, ?)');
-        const insertVersion = db.prepare('INSERT INTO versions (id, diagram_id, filename, content) VALUES (?, ?, ?, ?)');
+        getDb().run('INSERT INTO diagrams (id, public_access, description) VALUES (?, ?, ?)',
+            [id, isPublic ? 1 : 0, description]);
+        getDb().run('INSERT INTO versions (id, diagram_id, filename, content) VALUES (?, ?, ?, ?)',
+            [versionId, id, filename, content]);
 
-        const transaction = db.transaction(() => {
-            insertDiagram.run(id, public ? 1 : 0, description);
-            insertVersion.run(versionId, id, filename, content);
-        });
-
-        transaction();
+        saveDatabase();
         return { id };
     },
 
     updateDiagram: (id, { filename, content }) => {
-        const versionId = uuidv4(); // New version ID (SHA equivalent)
+        const versionId = uuidv4();
 
-        const insertVersion = db.prepare('INSERT INTO versions (id, diagram_id, filename, content) VALUES (?, ?, ?, ?)');
-        const updateDiagramTimestamp = db.prepare('UPDATE diagrams SET updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        getDb().run('INSERT INTO versions (id, diagram_id, filename, content) VALUES (?, ?, ?, ?)',
+            [versionId, id, filename, content]);
+        getDb().run('UPDATE diagrams SET updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+            [id]);
 
-        const transaction = db.transaction(() => {
-            insertVersion.run(versionId, id, filename, content);
-            updateDiagramTimestamp.run(id);
-        });
-
-        transaction();
+        saveDatabase();
         return true;
     },
 
     getDiagram: (id) => {
-        const diagram = db.prepare('SELECT * FROM diagrams WHERE id = ?').get(id);
+        const diagram = queryOne('SELECT * FROM diagrams WHERE id = ?', [id]);
         if (!diagram) return null;
 
-        // Get latest version
-        const latestVersion = db.prepare('SELECT * FROM versions WHERE diagram_id = ? ORDER BY created_at DESC LIMIT 1').get(id);
-
-        if (!latestVersion) return null; // Should not happen if created correctly
+        const latestVersion = queryOne(
+            'SELECT * FROM versions WHERE diagram_id = ? ORDER BY created_at DESC LIMIT 1', [id]);
+        if (!latestVersion) return null;
 
         return {
-            url: "", // Not used by app but part of Gist response
+            url: "",
             forks_url: "",
             commits_url: "",
             id: diagram.id,
@@ -86,7 +148,6 @@ module.exports = {
             owner: {
                 login: "local-user",
                 id: 1,
-                // ... other owner fields ignored
             },
             truncated: false
         };
@@ -94,12 +155,13 @@ module.exports = {
 
     getCommits: (id, page = 1, limit = 30) => {
         const offset = (page - 1) * limit;
-        const versions = db.prepare('SELECT * FROM versions WHERE diagram_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?').all(id, limit, offset);
+        const versions = queryAll(
+            'SELECT * FROM versions WHERE diagram_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+            [id, limit, offset]);
 
-        // Map to GitHub commit structure
         return versions.map(v => ({
             url: "",
-            version: v.id, // The "SHA"
+            version: v.id,
             user: {
                 login: "local-user",
                 id: 1,
@@ -113,13 +175,16 @@ module.exports = {
         }));
     },
 
-    // Get file history (similar to commits but specifically for versions list in UI)
     getFileVersions: (id, filename, limit = 30, cursor = 0) => {
         const offset = cursor ? parseInt(cursor) : 0;
-        const versions = db.prepare('SELECT * FROM versions WHERE diagram_id = ? AND filename = ? ORDER BY created_at DESC LIMIT ? OFFSET ?').all(id, limit, offset);
+        const versions = queryAll(
+            'SELECT * FROM versions WHERE diagram_id = ? AND filename = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+            [id, filename, limit, offset]);
 
-        // Check if there are more
-        const count = db.prepare('SELECT COUNT(*) as count FROM versions WHERE diagram_id = ? AND filename = ?').get(id, filename).count;
+        const countResult = queryOne(
+            'SELECT COUNT(*) as count FROM versions WHERE diagram_id = ? AND filename = ?',
+            [id, filename]);
+        const count = countResult ? countResult.count : 0;
         const hasMore = (offset + limit) < count;
         const nextCursor = hasMore ? offset + limit : null;
 
@@ -127,7 +192,6 @@ module.exports = {
             data: versions.map(v => ({
                 version: v.id,
                 committed_at: v.created_at,
-                // App seems to expect these fields for the list
             })),
             pagination: {
                 hasMore,
@@ -137,8 +201,10 @@ module.exports = {
     },
 
     getVersion: (id, sha) => {
-        const version = db.prepare('SELECT * FROM versions WHERE id = ? AND diagram_id = ?').get(sha, id);
-        const diagram = db.prepare('SELECT * FROM diagrams WHERE id = ?').get(id);
+        const version = queryOne(
+            'SELECT * FROM versions WHERE id = ? AND diagram_id = ?', [sha, id]);
+        const diagram = queryOne(
+            'SELECT * FROM diagrams WHERE id = ?', [id]);
 
         if (!version || !diagram) return null;
 
@@ -164,7 +230,7 @@ module.exports = {
             },
             public: !!diagram.public_access,
             created_at: diagram.created_at,
-            updated_at: version.created_at, // Version timestamp
+            updated_at: version.created_at,
             description: diagram.description,
             comments: 0,
             user: null,

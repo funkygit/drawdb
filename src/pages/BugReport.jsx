@@ -128,7 +128,7 @@ export default function BugReport() {
   } = useSettings();
 
   useEffect(() => {
-    document.title = "Report a bug | drawDB";
+    document.title = "Report a bug | AnyDB Studio";
     document.body.setAttribute("class", "theme");
   }, []);
 

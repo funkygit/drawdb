@@ -1,24 +1,34 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useLayoutEffect } from "react";
-import Editor from "./pages/Editor";
-import BugReport from "./pages/BugReport";
-import Templates from "./pages/Templates";
-import LandingPage from "./pages/LandingPage";
+import { useLayoutEffect, lazy, Suspense } from "react";
 import SettingsContextProvider from "./context/SettingsContext";
-import NotFound from "./pages/NotFound";
+
+// Lazy load pages
+const Editor = lazy(() => import("./pages/Editor"));
+const BugReport = lazy(() => import("./pages/BugReport"));
+const Templates = lazy(() => import("./pages/Templates"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-screen bg-zinc-100">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-900"></div>
+  </div>
+);
 
 export default function App() {
   return (
     <SettingsContextProvider>
       <BrowserRouter>
         <RestoreScroll />
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/editor" element={<Editor />} />
-          <Route path="/bug-report" element={<BugReport />} />
-          <Route path="/templates" element={<Templates />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/editor" element={<Editor />} />
+            <Route path="/bug-report" element={<BugReport />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </SettingsContextProvider>
   );

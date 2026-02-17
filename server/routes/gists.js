@@ -2,11 +2,52 @@ const express = require('express');
 const router = express.Router();
 const diagrams = require('../services/diagrams');
 
-// Create a new gist (diagram)
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Diagram:
+ *       type: object
+ *       properties:
+ *         public:
+ *           type: boolean
+ *         filename:
+ *           type: string
+ *         description:
+ *           type: string
+ *         content:
+ *           type: string
+ */
+
+/**
+ * @openapi
+ * /gists:
+ *   post:
+ *     summary: Create a new diagram
+ *     tags: [Gists]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Diagram'
+ *     responses:
+ *       201:
+ *         description: Diagram created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ */
 router.post('/', (req, res) => {
     try {
         const { public, description, filename, content } = req.body;
-        // Frontend sends: { public: false, filename, description, content }
         const result = diagrams.createDiagram({ public, description, filename, content });
 
         res.status(201).json({
@@ -20,7 +61,33 @@ router.post('/', (req, res) => {
     }
 });
 
-// Update a gist (create new version)
+/**
+ * @openapi
+ * /gists/{id}:
+ *   patch:
+ *     summary: Update diagram (create new version)
+ *     tags: [Gists]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               filename:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Updated successfully
+ */
 router.patch('/:id', (req, res) => {
     try {
         const { id } = req.params;
@@ -28,14 +95,31 @@ router.patch('/:id', (req, res) => {
 
         diagrams.updateDiagram(id, { filename, content });
 
-        res.json({ deleted: false }); // Frontend expects { deleted } property, though logic is update
+        res.json({ deleted: false });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-// Get gist details (latest version)
+/**
+ * @openapi
+ * /gists/{id}:
+ *   get:
+ *     summary: Get diagram details (latest version)
+ *     tags: [Gists]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Diagram details
+ *       404:
+ *         description: Not found
+ */
 router.get('/:id', (req, res) => {
     try {
         const { id } = req.params;
@@ -52,7 +136,30 @@ router.get('/:id', (req, res) => {
     }
 });
 
-// Get commits (history)
+/**
+ * @openapi
+ * /gists/{id}/commits:
+ *   get:
+ *     summary: Get version history
+ *     tags: [Gists]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: per_page
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of versions
+ */
 router.get('/:id/commits', (req, res) => {
     try {
         const { id } = req.params;
@@ -67,16 +174,30 @@ router.get('/:id/commits', (req, res) => {
     }
 });
 
-// Get specific version
+/**
+ * @openapi
+ * /gists/{id}/{sha}:
+ *   get:
+ *     summary: Get specific version content
+ *     tags: [Gists]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: sha
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Version details
+ */
 router.get('/:id/:sha', (req, res) => {
     try {
         const { id, sha } = req.params;
-
-        // "commits" endpoint also matches /:id/commits, so we need to handle that first or separate
-        // Express matches routes in order. If I define /:id/commits above /:id/:sha it works.
-        // Wait, "commits" IS the sha in /:id/:sha pattern if not careful.
-        // But "commits" is a specific literal string path in other endpoint.
-        // Let's rely on router order.
 
         const version = diagrams.getVersion(id, sha);
         if (!version) {
@@ -90,7 +211,35 @@ router.get('/:id/:sha', (req, res) => {
     }
 });
 
-// Get file versions (history list)
+/**
+ * @openapi
+ * /gists/{id}/file-versions/{filename}:
+ *   get:
+ *     summary: Get file versions with pagination
+ *     tags: [Gists]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: filename
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: cursor
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Paginated versions
+ */
 router.get('/:id/file-versions/:filename', (req, res) => {
     try {
         const { id, filename } = req.params;
